@@ -82,7 +82,7 @@ public class MensajeActivity extends AppCompatActivity {
                         fiestaIdAux = sharedPref.getString("fiestaId", null);
                     }
 
-                    final String fiestaIdFinal = fiestaIdAux;
+                    final String fiestaIdFinal = fiestaIdAux.toLowerCase();
 
                     final FirebaseDatabase database = FirebaseDatabase.getInstance();
                     final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/"+fiestaIdFinal);

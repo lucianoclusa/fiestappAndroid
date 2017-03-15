@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     fiestaIdAux = sharedPref.getString("fiestaId", null);
                 }
 
-                final String fiestaIdFinal = fiestaIdAux;
+                final String fiestaIdFinal = fiestaIdAux.toLowerCase();
 
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 final StorageReference storageRef = storage.getReferenceFromUrl(Constants.DATA_STORE_URL);
