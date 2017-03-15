@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "660310986770",
+    "firebase_url": "https://party-app-d9318.firebaseio.com",
+    "project_id": "party-app-d9318",
+    "storage_bucket": "party-app-d9318.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:660310986770:android:1b0bd12676719f0e",
+        "android_client_info": {
+          "package_name": "ar.com.fiestapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "660310986770-1j1eacvqk9rlhghdkutgc4v6vd14agdh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ar.com.fiestapp",
+            "certificate_hash": "72B4E22291D3D05AD0F9EF208786DDE62C2D4BF4"
+          }
+        },
+        {
+          "client_id": "660310986770-lck635klq8kqs8tpshtoquvrv6qotdjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNiHl1EQ3OfMHNRcTwEOMHYPjeZAwWI8g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "660310986770-lck635klq8kqs8tpshtoquvrv6qotdjp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
