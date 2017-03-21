@@ -1,24 +1,23 @@
 package ar.com.fiestapp.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -36,6 +35,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,8 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int FIRMA = 2;
     MainActivity activity;
     private FirebaseAuth mAuth;
-
-
+    private String mCurrentPhotoPath;
     public Uri downloadUrl;
     public Uri videoUri;
     public ByteArrayOutputStream baos;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     public String fiestaIdFinal;
     public String keyVideos;
     public DatabaseReference myRef;
+    private Uri photoURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +77,29 @@ public class MainActivity extends AppCompatActivity {
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, FOTO);
+                Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+                // Ensure that there's a camera activity to handle the intent
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    // Create the File where the photo should go
+                    File photoFile = null;
+                    try {
+                        photoFile = createImageFile();
+                    } catch (IOException ex) {
+                        // Error occurred while creating the File
+                        Log.v(Constants.TAG, "Can't create file to take picture!");
+                        Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT);
+                    }
+                    // Continue only if the File was successfully created
+                    if (photoFile != null) {
+                        photoURI = FileProvider.getUriForFile(activity,
+                                "ar.com.android.fileprovider",
+                                photoFile);
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                        startActivityForResult(takePictureIntent, FOTO);
+                    }
+                }
+
             }
         });
         View videoButton = findViewById(R.id.videoButton);
@@ -99,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if(intent!=null) {
             try {
 
                 String fiestaIdAux = ((FiestApp)getApplication()).getFiestaId();
@@ -123,13 +146,13 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (requestCode) {
                     case FOTO:
-                        final String keyImagenes = myRef.child(fiestaIdFinal).child("imagenes").push().getKey();
+                        Toast.makeText(activity, R.string.foto_subiendo, Toast.LENGTH_LONG).show();
 
-                        Bitmap bp = (Bitmap) intent.getExtras().get("data");
+                        final String keyImagenes = myRef.child(fiestaIdFinal).child("imagenes").push().getKey();
                         fileRef = storageRef.child(fiestaIdFinal + "/imagenes/" + keyImagenes + ".jpg");
 
-
-                        bp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),photoURI);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
                         byte[] bites = baos.toByteArray();
 
                         uploadTask = fileRef.putBytes(bites);
@@ -158,28 +181,21 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-
-
                         break;
                     case VIDEO:
-                        final String keyVideos = myRef.child(fiestaIdFinal).child("videos").push().getKey();
+                        Toast.makeText(activity, R.string.video_subiendo, Toast.LENGTH_LONG).show();
 
+                        final String keyVideos = myRef.child(fiestaIdFinal).child("videos").push().getKey();
                         final Uri videoUri = intent.getData();
 
                         StorageReference videoRef = storageRef.child(fiestaIdFinal + "/videos/"+videoUri.getLastPathSegment() + ".mp4");
                         uploadTask = videoRef.putFile(videoUri);
-
-
-
-
-
                         // Register observers to listen for when the download is done or if it fails
                         uploadTask.addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 // Handle unsuccessful uploads
                                 Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_LONG).show();
-
                             }
                         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -203,13 +219,6 @@ public class MainActivity extends AppCompatActivity {
                                 }else {
                                     uploadVideo(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
                                 }
-
-
-                                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-
-                               // uploadVideo(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
-
-
                             }
                         });
 
@@ -223,7 +232,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(Constants.TAG, getResources().getString(R.string.upload_failed), e);
 
             }
-        }
 
     }
 
@@ -366,6 +374,22 @@ public class MainActivity extends AppCompatActivity {
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
 }
