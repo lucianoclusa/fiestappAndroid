@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
@@ -48,12 +49,13 @@ import ar.com.fiestapp.R;
 import ar.com.fiestapp.entities.Imagen;
 import ar.com.fiestapp.entities.Video;
 import ar.com.fiestapp.utils.Constants;
+import ar.com.fiestapp.utils.ImageUtils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int FOTO = 0;
-    private static final int VIDEO = 1;
-    private static final int FIRMA = 2;
+    private static final int FOTO = 1;
+    private static final int VIDEO = 2;
+    private static final int FIRMA = 3;
     MainActivity activity;
     private FirebaseAuth mAuth;
     private String mCurrentPhotoPath;
@@ -72,6 +74,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         activity = this;
         mAuth = FirebaseAuth.getInstance();
+
+        String fiestaIdAux = ((FiestApp)getApplication()).getFiestaId();
+
+        if(fiestaIdAux==null) {
+            SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
+            fiestaIdAux = sharedPref.getString("fiestaId", null);
+        }
+
+        fiestaIdFinal = fiestaIdAux.toLowerCase();
+
+        setTitle("#" + fiestaIdFinal);
 
         View cameraButton = findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(new View.OnClickListener() {
@@ -125,14 +138,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, intent);
             try {
 
-                String fiestaIdAux = ((FiestApp)getApplication()).getFiestaId();
-
-                if(fiestaIdAux==null) {
-                    SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
-                    fiestaIdAux = sharedPref.getString("fiestaId", null);
-                }
-
-                final String fiestaIdFinal = fiestaIdAux.toLowerCase();
 
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 final StorageReference storageRef = storage.getReferenceFromUrl(Constants.DATA_STORE_URL);
@@ -152,7 +157,10 @@ public class MainActivity extends AppCompatActivity {
                         fileRef = storageRef.child(fiestaIdFinal + "/imagenes/" + keyImagenes + ".jpg");
 
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),photoURI);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+
+                        Bitmap rotatedBitmap = rotateBitmap(bitmap);
+
+                        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
                         byte[] bites = baos.toByteArray();
 
                         uploadTask = fileRef.putBytes(bites);
@@ -226,6 +234,11 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
 
+                    case RESULT_CANCELED:
+                        this.photoURI = null;
+                        this.mCurrentPhotoPath = null;
+                        break;
+
                 }
             }catch (Exception e){
                 Toast.makeText(MainActivity.this, R.string.upload_failed, Toast.LENGTH_SHORT).show();
@@ -235,6 +248,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private Bitmap rotateBitmap(Bitmap bitmap) throws IOException {
+
+        int rotation = ImageUtils.getRotation(this, photoURI, mCurrentPhotoPath);
+        if(rotation!=0){
+            Matrix matrix = new Matrix();
+            matrix.postRotate(rotation);
+            bitmap = Bitmap.createBitmap(bitmap , 0, 0, bitmap .getWidth(), bitmap .getHeight(), matrix, true);
+
+        }
+        return bitmap;
+    }
 
     private void uploadVideo(final Uri downloadUrl, Uri videoUri, ByteArrayOutputStream baos, StorageReference storageRef, String fiestaIdFinal, final String keyVideos, final DatabaseReference myRef) {
         String path = getRealPathFromURI(activity, videoUri);
@@ -392,4 +416,27 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // save file url in bundle as it will be null on screen orientation
+        // changes
+        outState.putParcelable("file_uri", photoURI);
+        outState.putString("file_path", mCurrentPhotoPath);
+
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // get the file url
+        photoURI = savedInstanceState.getParcelable("file_uri");
+        mCurrentPhotoPath = savedInstanceState.getString("file_path");
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }
