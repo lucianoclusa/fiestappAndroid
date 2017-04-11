@@ -16,7 +16,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="dedicatoria">Dedicatoria</string>
+    <string name="dedicatoria">Comentario</string>
     <string name="firma">Firma</string>
     <string name="send_message">Enviar</string>
     <string name="foto_subiendo">Subiendo foto.</string>

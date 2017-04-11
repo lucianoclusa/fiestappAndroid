@@ -8,6 +8,16 @@ import java.util.Date;
 public class Imagen {
     String id;
     String url;
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    String thumbnailUrl;
     long time;
 
     public String getId() {

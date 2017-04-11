@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +41,7 @@ public class MensajeActivity extends AppCompatActivity {
         firmaView = (TextView) findViewById(R.id.firma);
         contenidoView = (TextView) findViewById(R.id.contenido);
 
+        setTitle("Enviar comentario");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
