@@ -8,8 +8,8 @@ android {
         applicationId "ar.com.fiestapp"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 7
-        versionName "1.0.4"
+        versionCode 8
+        versionName "1.0.5"
         multiDexEnabled true
     }
     buildTypes {

@@ -48,5 +48,13 @@
         android:src="@drawable/signature"
         android:elevation="8dp"/>
 
-
+    <TextView
+        android:id="@+id/versionNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="10sp"
+        android:layout_marginRight="2dp"/>
 </RelativeLayout>

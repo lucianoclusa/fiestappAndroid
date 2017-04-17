@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     public String keyVideos;
     public DatabaseReference myRef;
     private Uri photoURI;
+    private TextView versionNumber;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -86,6 +89,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         activity = this;
         mAuth = FirebaseAuth.getInstance();
+
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            ((TextView)findViewById(R.id.versionNumber)).setText(pInfo.versionName);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         String fiestaIdAux = ((FiestApp) getApplication()).getFiestaId();
 
