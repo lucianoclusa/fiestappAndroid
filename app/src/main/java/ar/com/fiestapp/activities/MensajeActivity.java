@@ -3,11 +3,15 @@ package ar.com.fiestapp.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,8 +19,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.crash.FirebaseCrash;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -25,12 +34,15 @@ import java.util.Map;
 import ar.com.fiestapp.FiestApp;
 import ar.com.fiestapp.R;
 import ar.com.fiestapp.entities.Firma;
+import ar.com.fiestapp.entities.InfoFiesta;
+import ar.com.fiestapp.utils.Constants;
 
 public class MensajeActivity extends AppCompatActivity {
 
     Activity activity;
     TextView firmaView;
     TextView contenidoView;
+    public String fiestaIdFinal;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +56,14 @@ public class MensajeActivity extends AppCompatActivity {
         setTitle("Enviar comentario");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        String fiestaIdAux = ((FiestApp) getApplication()).getFiestaId();
+
+        if (fiestaIdAux == null) {
+            SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
+            fiestaIdAux = sharedPref.getString("fiestaId", null);
+        }
+
+        fiestaIdFinal = fiestaIdAux.toLowerCase();
 
         Button sendFirma = (Button) findViewById(R.id.send_message_button);
         sendFirma.setOnClickListener(new View.OnClickListener() {
@@ -77,14 +97,6 @@ public class MensajeActivity extends AppCompatActivity {
                 if (cancel) {
                     focusView.requestFocus();
                 }else{
-                    String fiestaIdAux = ((FiestApp)getApplication()).getFiestaId();
-
-                    if(fiestaIdAux==null) {
-                        SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
-                        fiestaIdAux = sharedPref.getString("fiestaId", null);
-                    }
-
-                    final String fiestaIdFinal = fiestaIdAux.toLowerCase();
 
                     final FirebaseDatabase database = FirebaseDatabase.getInstance();
                     final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/"+fiestaIdFinal);
@@ -106,6 +118,7 @@ public class MensajeActivity extends AppCompatActivity {
             }
         });
 
+        getInfoFiesta();
 
     }
     @Override
@@ -116,6 +129,47 @@ public class MensajeActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+
+    private void getInfoFiesta() {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/" + fiestaIdFinal + "/info");
+        ValueEventListener postListener = new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                InfoFiesta info = dataSnapshot.getValue(InfoFiesta.class);
+                if (info!=null && info.changeTheme) {
+                    changeTheme(info);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(Constants.TAG, "loadPost:onCancelled", databaseError.toException());
+            }
+        };
+        myRef.addListenerForSingleValueEvent(postListener);
+    }
+
+    private void changeTheme(InfoFiesta info) {
+        try {
+            if (info.changeTheme) {
+                if (info.statusBarColour != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        getWindow().setNavigationBarColor(Color.parseColor(info.statusBarColour));
+                        getWindow().setStatusBarColor(Color.parseColor(info.statusBarColour));
+                    }
+                }
+                if (info.actionBarColour != null) {
+                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(info.actionBarColour)));
+                }
+            }
+        }catch(Exception e){
+            FirebaseCrash.report(e);
+        }
     }
 
 }

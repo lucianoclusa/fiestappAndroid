@@ -8,7 +8,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.drawable.ColorDrawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
@@ -25,6 +27,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +48,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -56,6 +61,7 @@ import java.util.Map;
 import ar.com.fiestapp.FiestApp;
 import ar.com.fiestapp.R;
 import ar.com.fiestapp.entities.Imagen;
+import ar.com.fiestapp.entities.InfoFiesta;
 import ar.com.fiestapp.entities.Video;
 import ar.com.fiestapp.utils.Constants;
 import ar.com.fiestapp.utils.ImageUtils;
@@ -64,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int FOTO = 1;
     private static final int VIDEO = 2;
-    private static final int FIRMA = 3;
     MainActivity activity;
     private FirebaseAuth mAuth;
     private String mCurrentPhotoPath;
@@ -76,7 +81,11 @@ public class MainActivity extends AppCompatActivity {
     public String keyVideos;
     public DatabaseReference myRef;
     private Uri photoURI;
-    private TextView versionNumber;
+    private ImageView backgroundImage;
+    private ImageButton cameraButton;
+    private ImageButton videoButton;
+    private ImageButton mensajeButton;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -89,7 +98,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         activity = this;
         mAuth = FirebaseAuth.getInstance();
-
+        backgroundImage = (ImageView) findViewById(R.id.backgroundImage);
+        cameraButton = (ImageButton) findViewById(R.id.cameraButton);
+        videoButton = (ImageButton) findViewById(R.id.videoButton);
+        mensajeButton = (ImageButton) findViewById(R.id.mensajeButton);
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             ((TextView)findViewById(R.id.versionNumber)).setText(pInfo.versionName);
@@ -178,101 +190,102 @@ public class MainActivity extends AppCompatActivity {
             final UploadTask uploadTaskThumbImage;
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            switch (requestCode) {
-                case FOTO:
-                    Toast.makeText(activity, R.string.foto_subiendo, Toast.LENGTH_LONG).show();
+            if(resultCode!=RESULT_CANCELED){
+                switch (requestCode) {
+                    case FOTO:
+                        Toast.makeText(activity, R.string.foto_subiendo, Toast.LENGTH_LONG).show();
 
-                    final String keyImagenes = myRef.child(fiestaIdFinal).child("imagenes").push().getKey();
-                    fileRef = storageRef.child(fiestaIdFinal + "/imagenes/" + keyImagenes + ".jpg");
+                        final String keyImagenes = myRef.child(fiestaIdFinal).child("imagenes").push().getKey();
+                        fileRef = storageRef.child(fiestaIdFinal + "/imagenes/" + keyImagenes + ".jpg");
 
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
 
-                    final Bitmap rotatedBitmap = rotateBitmap(bitmap);
-                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
-                    byte[] bites = baos.toByteArray();
+                        final Bitmap rotatedBitmap = rotateBitmap(bitmap);
+                        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
+                        byte[] bites = baos.toByteArray();
 
-                    //Upload FullSizeImage
-                    uploadTask = fileRef.putBytes(bites);
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-                            Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_LONG).show();
-                            FirebaseCrash.report(exception);
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                            Imagen imagen = new Imagen();
-                            imagen.setTime(new Date().getTime());
-                            imagen.setId(keyImagenes);
-                            imagen.setUrl(downloadUrl.toString());
-                            imagen.setThumbnailUrl(downloadUrl.toString());
-                            Map<String, Object> childUpdates = new HashMap<>();
-                            childUpdates.put("/imagenes/" + keyImagenes, imagen);
-                            myRef.updateChildren(childUpdates);
-
-                            Toast.makeText(activity, R.string.foto_enviada, Toast.LENGTH_LONG).show();
-
-                            //uploadThumbImage(rotatedBitmap, fileRef, myRef, keyImagenes, downloadUrl.toString());
-                        }
-                    });
-
-
-                    break;
-                case VIDEO:
-                    Toast.makeText(activity, R.string.video_subiendo, Toast.LENGTH_LONG).show();
-
-                    final String keyVideos = myRef.child(fiestaIdFinal).child("videos").push().getKey();
-                    final Uri videoUri = intent.getData();
-
-                    StorageReference videoRef = storageRef.child(fiestaIdFinal + "/videos/" + videoUri.getLastPathSegment() + ".mp4");
-                    uploadTask = videoRef.putFile(videoUri);
-                    // Register observers to listen for when the download is done or if it fails
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-                            Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_LONG).show();
-                            FirebaseCrash.report(exception);
-
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            final Uri downloadUrl = taskSnapshot.getDownloadUrl();
-
-
-                            if (ContextCompat.checkSelfPermission(activity,
-                                    Manifest.permission.READ_EXTERNAL_STORAGE)
-                                    != PackageManager.PERMISSION_GRANTED) {
-                                requestPermission(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
-                                activity.downloadUrl = downloadUrl;
-                                activity.videoUri = videoUri;
-                                activity.baos = baos;
-                                activity.storageRef = storageRef;
-                                activity.fiestaIdFinal = fiestaIdFinal;
-                                activity.keyVideos = keyVideos;
-                                activity.myRef = myRef;
-                            } else {
-                                uploadVideo(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
+                        //Upload FullSizeImage
+                        uploadTask = fileRef.putBytes(bites);
+                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_LONG).show();
+                                FirebaseCrash.report(exception);
                             }
-                        }
-                    });
+                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                                Imagen imagen = new Imagen();
+                                imagen.setTime(new Date().getTime());
+                                imagen.setId(keyImagenes);
+                                imagen.setUrl(downloadUrl.toString());
+                                imagen.setThumbnailUrl(downloadUrl.toString());
+                                Map<String, Object> childUpdates = new HashMap<>();
+                                childUpdates.put("/imagenes/" + keyImagenes, imagen);
+                                myRef.updateChildren(childUpdates);
+
+                                Toast.makeText(activity, R.string.foto_enviada, Toast.LENGTH_LONG).show();
+
+                                //uploadThumbImage(rotatedBitmap, fileRef, myRef, keyImagenes, downloadUrl.toString());
+                            }
+                        });
 
 
-                    break;
+                        break;
+                    case VIDEO:
+                        Toast.makeText(activity, R.string.video_subiendo, Toast.LENGTH_LONG).show();
 
-                case RESULT_CANCELED:
+                        final String keyVideos = myRef.child(fiestaIdFinal).child("videos").push().getKey();
+                        final Uri videoUri = intent.getData();
+
+                        StorageReference videoRef = storageRef.child(fiestaIdFinal + "/videos/" + videoUri.getLastPathSegment() + ".mp4");
+                        uploadTask = videoRef.putFile(videoUri);
+                        // Register observers to listen for when the download is done or if it fails
+                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_LONG).show();
+                                FirebaseCrash.report(exception);
+
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                final Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+
+                                if (ContextCompat.checkSelfPermission(activity,
+                                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                                        != PackageManager.PERMISSION_GRANTED) {
+                                    requestPermission(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
+                                    activity.downloadUrl = downloadUrl;
+                                    activity.videoUri = videoUri;
+                                    activity.baos = baos;
+                                    activity.storageRef = storageRef;
+                                    activity.fiestaIdFinal = fiestaIdFinal;
+                                    activity.keyVideos = keyVideos;
+                                    activity.myRef = myRef;
+                                } else {
+                                    uploadVideo(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
+                                }
+                            }
+                        });
+
+
+                        break;
+                }
+            }else{
                     this.photoURI = null;
                     this.mCurrentPhotoPath = null;
-                    break;
+             }
 
-            }
+
         } catch (Exception e) {
             Toast.makeText(MainActivity.this, R.string.upload_failed, Toast.LENGTH_SHORT).show();
             Log.e(Constants.TAG, getResources().getString(R.string.upload_failed), e);
@@ -505,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        finish();
     }
 
     @Override
@@ -529,13 +542,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void getInfoFiesta(final Menu menu) {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/" + fiestaIdFinal);
+        final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/" + fiestaIdFinal + "/info");
         ValueEventListener postListener = new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild("info")) {
+                InfoFiesta info = dataSnapshot.getValue(InfoFiesta.class);
+                if (info!=null && info.tieneFoto) {
                     addFiestaInfoMenu(menu);
+                }
+                if(info!=null && info.changeTheme){
+                    changeTheme(info);
                 }
             }
 
@@ -546,7 +563,36 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         myRef.addListenerForSingleValueEvent(postListener);
+
+
+
     }
+
+    private void changeTheme(InfoFiesta info) {
+        try {
+            if (info.changeTheme) {
+                if (info.backgroundURL != null)
+                    Picasso.with(activity).load(info.backgroundURL).into(backgroundImage);
+                if (info.statusBarColour != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        getWindow().setNavigationBarColor(Color.parseColor(info.statusBarColour));
+                        getWindow().setStatusBarColor(Color.parseColor(info.statusBarColour));
+                    }
+                }
+                if (info.actionBarColour != null) {
+                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(info.actionBarColour)));
+                }
+                if (info.buttonsColour != null) {
+                    cameraButton.setBackgroundColor(Color.parseColor(info.buttonsColour));
+                    videoButton.setBackgroundColor(Color.parseColor(info.buttonsColour));
+                    mensajeButton.setBackgroundColor(Color.parseColor(info.buttonsColour));
+                }
+            }
+        }catch(Exception e){
+            FirebaseCrash.report(e);
+        }
+    }
+
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
