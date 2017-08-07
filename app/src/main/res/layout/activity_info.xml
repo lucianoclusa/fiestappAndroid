@@ -4,21 +4,23 @@
     android:id="@+id/activity_info"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ar.com.fiestapp.activities.InfoActivity">
 
+    <LinearLayout
+        android:id="@+id/contenidoInfo"
+        android:background="@color/accent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:padding="30dp"
+        android:orientation="vertical"
+        android:gravity="center">
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/info_foto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="23dp"
-        android:layout_marginStart="23dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_centerInParent="true" />
 
 </RelativeLayout>

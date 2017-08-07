@@ -36,23 +36,6 @@
                 android:layout_height="wrap_content">
 
                 <EditText
-                    android:id="@+id/firma"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/firma"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-            </android.support.design.widget.TextInputLayout>
-
-
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
                     android:id="@+id/contenido"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -60,6 +43,21 @@
                     android:hint="@string/dedicatoria"
                     android:inputType="textMultiLine"
                     android:maxLines="5"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/firma"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/firma"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>
 

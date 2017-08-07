@@ -8,5 +8,5 @@ public class Constants {
     public static final String PASS = "asd123";
     public static final String MAIL = "@fiestapp.com";
     public static final String DATA_STORE_URL = "gs://party-app-d9318.appspot.com";
-
+    public static final String EVENT_UPLOAD = "upload_event";
 }

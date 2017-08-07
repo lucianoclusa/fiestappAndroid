@@ -23,12 +23,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,7 @@ import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
@@ -53,7 +57,9 @@ import com.squareup.picasso.Picasso;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton cameraButton;
     private ImageButton videoButton;
     private ImageButton mensajeButton;
+    private FirebaseAnalytics mFirebaseAnalytics;
+    InfoFiesta infoFiesta;
+    String error;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -95,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         activity = this;
         mAuth = FirebaseAuth.getInstance();
@@ -102,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
         cameraButton = (ImageButton) findViewById(R.id.cameraButton);
         videoButton = (ImageButton) findViewById(R.id.videoButton);
         mensajeButton = (ImageButton) findViewById(R.id.mensajeButton);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             ((TextView)findViewById(R.id.versionNumber)).setText(pInfo.versionName);
@@ -121,32 +134,41 @@ public class MainActivity extends AppCompatActivity {
 
         setTitle("#" + fiestaIdFinal);
 
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("fiestApp").child("fiestas/" + fiestaIdFinal);
+        this.getEventInfo();
+
         View cameraButton = findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                // Ensure that there's a camera activity to handle the intent
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    // Create the File where the photo should go
-                    File photoFile = null;
-                    try {
-                        photoFile = createImageFile();
-                    } catch (IOException ex) {
-                        // Error occurred while creating the File
-                        Log.v(Constants.TAG, "Can't create file to take picture!");
-                        Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT);
-                        FirebaseCrash.report(ex);
+                if(validateAction()) {
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                    // Ensure that there's a camera activity to handle the intent
+                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                        // Create the File where the photo should go
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException ex) {
+                            // Error occurred while creating the File
+                            Log.v(Constants.TAG, "Can't create file to take picture!");
+                            Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
+                            FirebaseCrash.report(ex);
+                        }
+                        // Continue only if the File was successfully created
+                        if (photoFile != null) {
+                            photoURI = FileProvider.getUriForFile(activity,
+                                    "ar.com.android.fileprovider",
+                                    photoFile);
+                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                            startActivityForResult(takePictureIntent, FOTO);
+                        }
                     }
-                    // Continue only if the File was successfully created
-                    if (photoFile != null) {
-                        photoURI = FileProvider.getUriForFile(activity,
-                                "ar.com.android.fileprovider",
-                                photoFile);
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                        startActivityForResult(takePictureIntent, FOTO);
-                    }
+                }else{
+                    Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -155,18 +177,26 @@ public class MainActivity extends AppCompatActivity {
         videoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 5);
-                cameraIntent.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 0);
-                startActivityForResult(cameraIntent, VIDEO);
+                if(validateAction()) {
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                    cameraIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 5);
+                    cameraIntent.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 0);
+                    startActivityForResult(cameraIntent, VIDEO);
+                }else{
+                    Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
+                }
             }
         });
         View mensajeButton = findViewById(R.id.mensajeButton);
         mensajeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(activity, MensajeActivity.class);
-                startActivity(intent);
+                if(validateAction()) {
+                    Intent intent = new Intent(activity, MensajeActivity.class);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
+                }
             }
         });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -174,18 +204,62 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+    private void getEventInfo() {
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                infoFiesta = dataSnapshot.getValue(InfoFiesta.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(Constants.TAG, "loadPost:onCancelled", databaseError.toException());
+                Toast.makeText(activity, "No se pueden obtener los datos del evento.", Toast.LENGTH_SHORT).show();
+            }
+        };
+        myRef.child("info").addListenerForSingleValueEvent(postListener);
+    }
+
+    private boolean validateAction() {
+        if(infoFiesta!=null && infoFiesta.getEventTime()!=null && infoFiesta.getEventDuration()>0){
+            try {
+                Date eventDate = new SimpleDateFormat("yyyy-MM-dd").parse(infoFiesta.getEventTime().split("T")[0]);
+                Date eventHour = new SimpleDateFormat("HH:mm:ss").parse(infoFiesta.getEventTime().split("T")[1]);
+                long sum = eventDate.getTime() + eventHour.getTime();
+                Date eventTime = new Date(sum);
+                if(new Date().before(eventTime)){
+                    SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+
+                    error = "Aun no ha comenzado el evento. Comienza: " + dt.format(eventTime);
+                    return false;
+                }else{
+                    Calendar cal = Calendar.getInstance(); // creates calendar
+                    cal.setTimeInMillis(eventTime.getTime() + (long)(infoFiesta.getEventDuration()*60*60*1000));
+
+                    if(new Date().after(cal.getTime())){
+                        error="El evento ya ha finalizado.";
+                        return false;
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return true;
+            }
+        }
+        return true;
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         try {
 
-
             FirebaseStorage storage = FirebaseStorage.getInstance();
             final StorageReference storageRef = storage.getReferenceFromUrl(Constants.DATA_STORE_URL);
             final StorageReference fileRef;
-            final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
 
-            final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/" + fiestaIdFinal);
             final UploadTask uploadTask;
             final UploadTask uploadTaskThumbImage;
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -226,6 +300,12 @@ public class MainActivity extends AppCompatActivity {
                                 Map<String, Object> childUpdates = new HashMap<>();
                                 childUpdates.put("/imagenes/" + keyImagenes, imagen);
                                 myRef.updateChildren(childUpdates);
+
+                                Bundle bundle = new Bundle();
+                                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, keyImagenes);
+                                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, Constants.EVENT_UPLOAD);
+                                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
+                                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
 
                                 Toast.makeText(activity, R.string.foto_enviada, Toast.LENGTH_LONG).show();
 
@@ -281,9 +361,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }else{
-                    this.photoURI = null;
-                    this.mCurrentPhotoPath = null;
-             }
+                this.photoURI = null;
+                this.mCurrentPhotoPath = null;
+            }
 
 
         } catch (Exception e) {
@@ -292,43 +372,6 @@ public class MainActivity extends AppCompatActivity {
             FirebaseCrash.report(e);
         }
 
-    }
-
-    private void uploadThumbImage(Bitmap bp, StorageReference fileRef, final DatabaseReference myRef, final String keyImagenes, final String fullImageUrl) {
-        UploadTask uploadTaskThumbImage;
-        final ByteArrayOutputStream baosThumb = new ByteArrayOutputStream();
-        bp.compress(Bitmap.CompressFormat.JPEG, 10, baosThumb);
-
-        //Upload thumb image
-        byte[] bitesThumb = baosThumb.toByteArray();
-
-        //Upload FullSizeImage
-        uploadTaskThumbImage = fileRef.putBytes(bitesThumb);
-        uploadTaskThumbImage.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-                Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_LONG).show();
-                FirebaseCrash.report(exception);
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                Imagen imagen = new Imagen();
-                imagen.setTime(new Date().getTime());
-                imagen.setId(keyImagenes);
-                imagen.setUrl(fullImageUrl);
-                imagen.setThumbnailUrl(downloadUrl.toString());
-                Map<String, Object> childUpdates = new HashMap<>();
-                childUpdates.put("/imagenes/" + keyImagenes, imagen);
-                myRef.updateChildren(childUpdates);
-
-                Toast.makeText(activity, R.string.foto_enviada, Toast.LENGTH_LONG).show();
-
-            }
-        });
     }
 
     private Bitmap rotateBitmap(Bitmap bitmap) throws IOException {
@@ -376,6 +419,14 @@ public class MainActivity extends AppCompatActivity {
                 childUpdates.put("/videos/" + keyVideos, video);
 
                 myRef.updateChildren(childUpdates);
+
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, keyVideos);
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, Constants.EVENT_UPLOAD);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "video");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
+
                 Toast.makeText(activity, R.string.video_enviado, Toast.LENGTH_LONG).show();
 
             }
@@ -548,10 +599,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 InfoFiesta info = dataSnapshot.getValue(InfoFiesta.class);
-                if (info!=null && info.tieneFoto) {
+                if (info!=null && (info.isTieneFoto() || info.getData()!=null)) {
                     addFiestaInfoMenu(menu);
                 }
-                if(info!=null && info.changeTheme){
+                if(info!=null && info.isChangeTheme()){
                     changeTheme(info);
                 }
             }
@@ -570,22 +621,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeTheme(InfoFiesta info) {
         try {
-            if (info.changeTheme) {
-                if (info.backgroundURL != null)
-                    Picasso.with(activity).load(info.backgroundURL).into(backgroundImage);
-                if (info.statusBarColour != null) {
+            if (info.isChangeTheme()) {
+                if (info.getBackgroundURL() != null)
+                    Picasso.with(activity).load(info.getBackgroundURL()).into(backgroundImage);
+                if (info.getStatusBarColour() != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        getWindow().setNavigationBarColor(Color.parseColor(info.statusBarColour));
-                        getWindow().setStatusBarColor(Color.parseColor(info.statusBarColour));
+                        getWindow().setNavigationBarColor(Color.parseColor(info.getStatusBarColour()));
+                        getWindow().setStatusBarColor(Color.parseColor(info.getStatusBarColour()));
                     }
                 }
-                if (info.actionBarColour != null) {
-                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(info.actionBarColour)));
+                if (info.getActionBarColour() != null) {
+                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(info.getActionBarColour())));
                 }
-                if (info.buttonsColour != null) {
-                    cameraButton.setBackgroundColor(Color.parseColor(info.buttonsColour));
-                    videoButton.setBackgroundColor(Color.parseColor(info.buttonsColour));
-                    mensajeButton.setBackgroundColor(Color.parseColor(info.buttonsColour));
+                if (info.getButtonsColour() != null) {
+                    cameraButton.setBackgroundColor(Color.parseColor(info.getButtonsColour()));
+                    videoButton.setBackgroundColor(Color.parseColor(info.getButtonsColour()));
+                    mensajeButton.setBackgroundColor(Color.parseColor(info.getButtonsColour()));
                 }
             }
         }catch(Exception e){

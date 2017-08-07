@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,6 +44,7 @@ public class MensajeActivity extends AppCompatActivity {
     TextView firmaView;
     TextView contenidoView;
     public String fiestaIdFinal;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class MensajeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_mensaje);
         firmaView = (TextView) findViewById(R.id.firma);
         contenidoView = (TextView) findViewById(R.id.contenido);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         setTitle("Enviar comentario");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -112,6 +115,13 @@ public class MensajeActivity extends AppCompatActivity {
                     childUpdates.put("/firmas/" + keyFirmas, firma);
 
                     myRef.updateChildren(childUpdates);
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, keyFirmas);
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, Constants.EVENT_UPLOAD);
+                    bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "firma");
+                    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
                     Toast.makeText(activity, R.string.mensaje_enviada, Toast.LENGTH_LONG).show();
                     finish();
                 }
@@ -140,7 +150,7 @@ public class MensajeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 InfoFiesta info = dataSnapshot.getValue(InfoFiesta.class);
-                if (info!=null && info.changeTheme) {
+                if (info!=null && info.isChangeTheme()) {
                     changeTheme(info);
                 }
             }
@@ -156,15 +166,15 @@ public class MensajeActivity extends AppCompatActivity {
 
     private void changeTheme(InfoFiesta info) {
         try {
-            if (info.changeTheme) {
-                if (info.statusBarColour != null) {
+            if (info.isChangeTheme()) {
+                if (info.getStatusBarColour() != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        getWindow().setNavigationBarColor(Color.parseColor(info.statusBarColour));
-                        getWindow().setStatusBarColor(Color.parseColor(info.statusBarColour));
+                        getWindow().setNavigationBarColor(Color.parseColor(info.getStatusBarColour()));
+                        getWindow().setStatusBarColor(Color.parseColor(info.getStatusBarColour()));
                     }
                 }
-                if (info.actionBarColour != null) {
-                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(info.actionBarColour)));
+                if (info.getActionBarColour() != null) {
+                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(info.getActionBarColour())));
                 }
             }
         }catch(Exception e){

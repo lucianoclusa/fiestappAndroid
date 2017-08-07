@@ -3,6 +3,7 @@ package ar.com.fiestapp.entities;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,14 +12,17 @@ import java.util.Map;
  */
 @IgnoreExtraProperties
 public class InfoFiesta {
-    public boolean tieneFoto;
-    public boolean changeTheme;
-    public String backgroundURL;
-    public String statusBarColour;
-    public String actionBarColour;
-    public String buttonsColour;
-    public Map<String,String> data;
-    public String fotoURL;
+    private boolean tieneFoto;
+    private boolean changeTheme;
+    private String backgroundURL;
+    private String statusBarColour;
+    private String actionBarColour;
+    private String buttonsColour;
+    private Map<String,String> data;
+    private String fotoURL;
+    private String eventTime;
+    private float eventDuration;
+    private String infoURL;
 
     public InfoFiesta(){}
 
@@ -91,5 +95,37 @@ public class InfoFiesta {
 
     public void setActionBarColour(String actionBarColour) {
         this.actionBarColour = actionBarColour;
+    }
+
+    public String getButtonsColour() {
+        return buttonsColour;
+    }
+
+    public void setButtonsColour(String buttonsColour) {
+        this.buttonsColour = buttonsColour;
+    }
+
+    public String getEventTime() {
+        return eventTime;
+    }
+
+    public void setEventTime(String eventTime) {
+        this.eventTime = eventTime;
+    }
+
+    public float getEventDuration() {
+        return eventDuration;
+    }
+
+    public void setEventDuration(float eventDuration) {
+        this.eventDuration = eventDuration;
+    }
+
+    public String getInfoURL() {
+        return infoURL;
+    }
+
+    public void setInfoURL(String infoURL) {
+        this.infoURL = infoURL;
     }
 }

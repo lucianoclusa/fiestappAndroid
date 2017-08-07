@@ -120,6 +120,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Store values at the time of the login attempt.
         fiestaId = fiestaIdView.getText().toString();
 
+        fiestaId =fiestaId.replace("#", "");
         boolean cancel = false;
         View focusView = null;
 
