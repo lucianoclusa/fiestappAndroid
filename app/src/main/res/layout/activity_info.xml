@@ -4,7 +4,7 @@
     android:id="@+id/activity_info"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ar.com.fiestapp.activities.InfoActivity">
+    tools:context="ar.com.tagscreen.activities.InfoActivity">
 
     <LinearLayout
         android:id="@+id/contenidoInfo"

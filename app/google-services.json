@@ -19,7 +19,7 @@
           "client_type": 1,
           "android_info": {
             "package_name": "ar.com.fiestapp",
-            "certificate_hash": "72B4E22291D3D05AD0F9EF208786DDE62C2D4BF4"
+            "certificate_hash": "72b4e22291d3d05ad0f9ef208786dde62c2d4bf4"
           }
         },
         {
@@ -42,8 +42,46 @@
             {
               "client_id": "660310986770-lck635klq8kqs8tpshtoquvrv6qotdjp.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "660310986770-5aum508mpgaa6cl405jpr9sphd19ja9j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ar.com.coco"
+              }
             }
           ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:660310986770:android:edd8a34495abc4ab",
+        "android_client_info": {
+          "package_name": "ar.com.tagscreen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "660310986770-lck635klq8kqs8tpshtoquvrv6qotdjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNiHl1EQ3OfMHNRcTwEOMHYPjeZAwWI8g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

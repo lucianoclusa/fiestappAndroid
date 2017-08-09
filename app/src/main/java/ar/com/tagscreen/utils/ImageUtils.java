@@ -1,4 +1,4 @@
-package ar.com.fiestapp.utils;
+package ar.com.tagscreen.utils;
 
 import android.content.Context;
 import android.database.Cursor;

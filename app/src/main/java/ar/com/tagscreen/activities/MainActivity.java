@@ -1,4 +1,4 @@
-package ar.com.fiestapp.activities;
+package ar.com.tagscreen.activities;
 
 import android.Manifest;
 import android.content.Context;
@@ -23,15 +23,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,13 +61,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import ar.com.fiestapp.FiestApp;
-import ar.com.fiestapp.R;
-import ar.com.fiestapp.entities.Imagen;
-import ar.com.fiestapp.entities.InfoFiesta;
-import ar.com.fiestapp.entities.Video;
-import ar.com.fiestapp.utils.Constants;
-import ar.com.fiestapp.utils.ImageUtils;
+import ar.com.tagscreen.TagScreen;
+import ar.com.tagscreen.R;
+import ar.com.tagscreen.entities.Imagen;
+import ar.com.tagscreen.entities.InfoFiesta;
+import ar.com.tagscreen.entities.Video;
+import ar.com.tagscreen.utils.Constants;
+import ar.com.tagscreen.utils.ImageUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -123,10 +120,10 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String fiestaIdAux = ((FiestApp) getApplication()).getFiestaId();
+        String fiestaIdAux = ((TagScreen) getApplication()).getFiestaId();
 
         if (fiestaIdAux == null) {
-            SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
             fiestaIdAux = sharedPref.getString("fiestaId", null);
         }
 
@@ -452,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logOut(MenuItem item) {
-        ((FiestApp) getApplication()).setFiestaId(null);
+        ((TagScreen) getApplication()).setFiestaId(null);
         mAuth.signOut();
         Intent intent = new Intent(activity, LoginActivity.class);
         startActivity(intent);

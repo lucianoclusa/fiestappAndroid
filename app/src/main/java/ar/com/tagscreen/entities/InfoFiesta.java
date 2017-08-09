@@ -1,9 +1,8 @@
-package ar.com.fiestapp.entities;
+package ar.com.tagscreen.entities;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

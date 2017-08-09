@@ -1,12 +1,20 @@
-package ar.com.fiestapp.entities;
+package ar.com.tagscreen.entities;
 
 /**
  * Created by luciano.clusa on 22/12/2016.
  */
-
-public class Video {
+public class Imagen {
     String id;
     String url;
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
     String thumbnailUrl;
     long time;
 
@@ -32,13 +40,5 @@ public class Video {
 
     public void setTime(long time) {
         this.time = time;
-    }
-
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
-    }
-
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
     }
 }

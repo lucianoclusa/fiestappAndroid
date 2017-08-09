@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ar.com.fiestapp">
+    package="ar.com.tagscreen">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".FiestApp"
+        android:name="ar.com.tagscreen.TagScreen"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -14,13 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.MainActivity"
+            android:name="ar.com.tagscreen.activities.MainActivity"
             android:label="@string/app_name"></activity>
         <activity
-            android:name=".activities.MensajeActivity"
+            android:name="ar.com.tagscreen.activities.MensajeActivity"
             android:label="@string/app_name"></activity>
         <activity
-            android:name=".activities.LoginActivity"
+            android:name="ar.com.tagscreen.activities.LoginActivity"
             android:label="@string/app_name"
             android:noHistory="true">
             <intent-filter>
@@ -40,7 +40,7 @@
                 android:resource="@xml/file_path" />
         </provider>
 
-        <activity android:name=".activities.InfoActivity"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+        <activity android:name="ar.com.tagscreen.activities.InfoActivity"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
             android:name="com.google.android.gms.version"

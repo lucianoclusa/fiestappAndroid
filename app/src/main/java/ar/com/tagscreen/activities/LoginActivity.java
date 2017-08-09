@@ -1,4 +1,4 @@
-package ar.com.fiestapp.activities;
+package ar.com.tagscreen.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -29,17 +29,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import ar.com.fiestapp.FiestApp;
-import ar.com.fiestapp.R;
-import ar.com.fiestapp.entities.Fiesta;
-import ar.com.fiestapp.utils.Constants;
+import ar.com.tagscreen.TagScreen;
+import ar.com.tagscreen.R;
+import ar.com.tagscreen.utils.Constants;
 
 /**
  * A login screen that offers login via email/password.
@@ -74,8 +70,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    ((FiestApp)getApplication()).setFiestaId(user.getEmail().replace("@fiestapp.com",""));
-                    SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
+                    ((TagScreen)getApplication()).setFiestaId(user.getEmail().replace("@fiestapp.com",""));
+                    SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
                     sharedPref.edit().putString("fiestaId",user.getEmail().replace("@fiestapp.com",""));
                     Log.d(Constants.TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     Intent intent = new Intent(activity, MainActivity.class);
@@ -153,14 +149,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 /*                                final FirebaseDatabase database = FirebaseDatabase.getInstance();
                                 final DatabaseReference myRef = database.getReference("fiestApp");
 
-                                Fiesta fiesta= new Fiesta();
+                                TagScreen fiesta= new TagScreen();
                                 fiesta.setFiestaId(fiestaId);
                                 fiesta.setFechaCreacion(new Date());
 
                                 myRef.child("fiestas").child(fiestaId).setValue(fiesta);*/
-                                ((FiestApp)getApplication()).setFiestaId(fiestaId);
+                                ((TagScreen)getApplication()).setFiestaId(fiestaId);
 
-                                SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
+                                SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("fiestaId", fiestaId);
                                 editor.commit();

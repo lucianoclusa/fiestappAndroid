@@ -1,11 +1,11 @@
-package ar.com.fiestapp;
+package ar.com.tagscreen;
 
 import android.app.Application;
 
 /**
  * Created by luciano.clusa on 20/12/2016.
  */
-public class FiestApp extends Application {
+public class TagScreen extends Application {
     public String getFiestaId() {
         return fiestaId;
     }

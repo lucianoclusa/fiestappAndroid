@@ -1,4 +1,4 @@
-package ar.com.fiestapp.activities;
+package ar.com.tagscreen.activities;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,11 +8,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,17 +24,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import ar.com.fiestapp.FiestApp;
-import ar.com.fiestapp.R;
-import ar.com.fiestapp.entities.Firma;
-import ar.com.fiestapp.entities.InfoFiesta;
-import ar.com.fiestapp.utils.Constants;
+import ar.com.tagscreen.TagScreen;
+import ar.com.tagscreen.R;
+import ar.com.tagscreen.entities.Firma;
+import ar.com.tagscreen.entities.InfoFiesta;
+import ar.com.tagscreen.utils.Constants;
 
 public class MensajeActivity extends AppCompatActivity {
 
@@ -59,10 +56,10 @@ public class MensajeActivity extends AppCompatActivity {
         setTitle("Enviar comentario");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String fiestaIdAux = ((FiestApp) getApplication()).getFiestaId();
+        String fiestaIdAux = ((TagScreen) getApplication()).getFiestaId();
 
         if (fiestaIdAux == null) {
-            SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
             fiestaIdAux = sharedPref.getString("fiestaId", null);
         }
 

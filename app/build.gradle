@@ -5,11 +5,11 @@ android {
     buildToolsVersion '25.0.2'
 
     defaultConfig {
-        applicationId "ar.com.fiestapp"
+        applicationId "ar.com.tagscreen"
         minSdkVersion 14
         targetSdkVersion 24
-        versionCode 14
-        versionName "1.0.10"
+        versionCode 2
+        versionName "1.0.1"
         multiDexEnabled true
     }
     buildTypes {

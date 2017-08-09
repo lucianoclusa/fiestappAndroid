@@ -1,4 +1,4 @@
-package ar.com.fiestapp;
+package ar.com.tagscreen;
 
 import org.junit.Test;
 

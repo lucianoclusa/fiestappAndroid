@@ -1,4 +1,4 @@
-package ar.com.fiestapp.entities;
+package ar.com.tagscreen.entities;
 
 import java.util.Date;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.List;
  * Created by luciano.clusa on 22/12/2016.
  */
 
-public class Fiesta {
+public class TagScreen {
     String fiestaId;
     List<Imagen> imagenes;
     List<Video> videos;

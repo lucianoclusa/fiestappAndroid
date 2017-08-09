@@ -1,4 +1,4 @@
-package ar.com.fiestapp.entities;
+package ar.com.tagscreen.entities;
 
 /**
  * Created by luciano.clusa on 22/12/2016.

@@ -1,4 +1,4 @@
-package ar.com.fiestapp.activities;
+package ar.com.tagscreen.activities;
 
 import android.app.Activity;
 import android.content.Context;
@@ -25,12 +25,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Map;
 
-import ar.com.fiestapp.FiestApp;
-import ar.com.fiestapp.R;
-import ar.com.fiestapp.entities.InfoFiesta;
-import ar.com.fiestapp.utils.Constants;
-
-import static android.R.id.message;
+import ar.com.tagscreen.TagScreen;
+import ar.com.tagscreen.R;
+import ar.com.tagscreen.entities.InfoFiesta;
+import ar.com.tagscreen.utils.Constants;
 
 public class InfoActivity extends AppCompatActivity {
     ImageView photoView;
@@ -45,10 +43,10 @@ public class InfoActivity extends AppCompatActivity {
         setTitle("Info");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String fiestaIdAux = ((FiestApp)getApplication()).getFiestaId();
+        String fiestaIdAux = ((TagScreen)getApplication()).getFiestaId();
 
         if(fiestaIdAux==null) {
-            SharedPreferences sharedPref = getSharedPreferences("FiestApp", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
             fiestaIdAux = sharedPref.getString("fiestaId", null);
         }
 
