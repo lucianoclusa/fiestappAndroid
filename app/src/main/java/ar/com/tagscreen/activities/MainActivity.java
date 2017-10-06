@@ -60,6 +60,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import ar.com.tagscreen.TagScreen;
 import ar.com.tagscreen.R;
@@ -222,18 +223,18 @@ public class MainActivity extends AppCompatActivity {
     private boolean validateAction() {
         if(infoFiesta!=null && infoFiesta.getEventTime()!=null && infoFiesta.getEventDuration()>0){
             try {
-                Date eventDate = new SimpleDateFormat("yyyy-MM-dd").parse(infoFiesta.getEventTime().split("T")[0]);
-                Date eventHour = new SimpleDateFormat("HH:mm:ss").parse(infoFiesta.getEventTime().split("T")[1]);
-                long sum = eventDate.getTime() + eventHour.getTime();
-                Date eventTime = new Date(sum);
+                SimpleDateFormat eventTimedf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                eventTimedf.setTimeZone(TimeZone.getTimeZone("GMT-03:00"));
+                Date eventTime = eventTimedf.parse(infoFiesta.getEventTime());
                 if(new Date().before(eventTime)){
-                    SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-
-                    error = "Aun no ha comenzado el evento. Comienza: " + dt.format(eventTime);
+                    SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy-hh:mm:ssa");
+                    dt.setTimeZone(TimeZone.getTimeZone("GMT-03:00"));
+                    error = "El evento comienza el " + dt.format(eventTime);
                     return false;
                 }else{
                     Calendar cal = Calendar.getInstance(); // creates calendar
                     cal.setTimeInMillis(eventTime.getTime() + (long)(infoFiesta.getEventDuration()*60*60*1000));
+                    cal.setTimeZone(TimeZone.getTimeZone("GMT-03:00"));
 
                     if(new Date().after(cal.getTime())){
                         error="El evento ya ha finalizado.";
