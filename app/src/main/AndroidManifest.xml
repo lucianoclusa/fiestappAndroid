@@ -5,8 +5,13 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
-        android:name="ar.com.tagscreen.TagScreen"
+        android:name=".TagScreen"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -14,13 +19,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="ar.com.tagscreen.activities.MainActivity"
-            android:label="@string/app_name"></activity>
+            android:name=".activities.MainActivity"
+            android:label="@string/app_name" />
         <activity
-            android:name="ar.com.tagscreen.activities.MensajeActivity"
-            android:label="@string/app_name"></activity>
+            android:name=".activities.MensajeActivity"
+            android:label="@string/app_name" />
         <activity
-            android:name="ar.com.tagscreen.activities.LoginActivity"
+            android:name=".activities.MainLoginActivity"
             android:label="@string/app_name"
             android:noHistory="true">
             <intent-filter>
@@ -29,6 +34,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.FirebaseLoginActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.RegisterActivity"
+            android:label="@string/app_name" />
+        <activity android:name=".activities.InfoActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -40,11 +52,18 @@
                 android:resource="@xml/file_path" />
         </provider>
 
-        <activity android:name="ar.com.tagscreen.activities.InfoActivity"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <!--
+ ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".activities.RegisterEventActivity"
+            android:label="@string/title_activity_register_event"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

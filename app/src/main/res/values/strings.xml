@@ -9,7 +9,7 @@
     <string name="prompt_password">Password (optional)</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_event_id">No existe el id de evento</string>
+    <string name="error_invalid_event_id">No existe el evento</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
@@ -26,5 +26,25 @@
     <string name="mensaje_enviada">Mensaje enviado.</string>
     <string name="auth_failed">Error de login</string>
     <string name="upload_failed">Ha ocurrido un error, intentelo más tarde</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_login_example">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="error_invalid_email">Email invalido</string>
+    <string name="login_email">Entrar con email</string>
+    <string name="title_activity_firebase_login">Sign in</string>
+    <string name="crear_nuevo_usuario">Crear nuevo usuario</string>
+    <string name="title_activity_register">Sign in</string>
+    <string name="user">nombre</string>
+    <string name="repeat_password">reperir contraseña</string>
+    <string name="different_passwords">contraseñas diferentes</string>
+    <string name="title_activity_register_event">RegisterEvent</string>
+    <string name="asistire">Asisitiré</string>
+    <string name="tal_vez">Tal vez</string>
+    <string name="no_asistire">No asistiré</string>
+    <string name="registrarEvento">INGRESAR AL EVENTO</string>
 
 </resources>

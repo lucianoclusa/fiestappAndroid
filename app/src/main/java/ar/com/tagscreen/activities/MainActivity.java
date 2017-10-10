@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         String fiestaIdAux = ((TagScreen) getApplication()).getFiestaId();
 
         if (fiestaIdAux == null) {
-            SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences("Event", Context.MODE_PRIVATE);
             fiestaIdAux = sharedPref.getString("fiestaId", null);
         }
 
@@ -441,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_log_out) {
-            Intent intent = new Intent(activity, LoginActivity.class);
+            Intent intent = new Intent(activity, MainLoginActivity.class);
             startActivity(intent);
             finish();
         }
@@ -452,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
     public void logOut(MenuItem item) {
         ((TagScreen) getApplication()).setFiestaId(null);
         mAuth.signOut();
-        Intent intent = new Intent(activity, LoginActivity.class);
+        Intent intent = new Intent(activity, MainLoginActivity.class);
         startActivity(intent);
         finish();
     }
@@ -583,6 +583,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Intent intent = new Intent(activity, InfoActivity.class);
+                intent.putExtra("fiestaId", fiestaIdFinal);
                 startActivity(intent);
                 return true;
             }

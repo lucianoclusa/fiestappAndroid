@@ -7,7 +7,7 @@ import java.util.List;
  * Created by luciano.clusa on 22/12/2016.
  */
 
-public class TagScreen {
+public class Event {
     String fiestaId;
     List<Imagen> imagenes;
     List<Video> videos;
@@ -53,4 +53,5 @@ public class TagScreen {
     public void setFechaCreacion(Date fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
+
 }

@@ -59,7 +59,7 @@ public class MensajeActivity extends AppCompatActivity {
         String fiestaIdAux = ((TagScreen) getApplication()).getFiestaId();
 
         if (fiestaIdAux == null) {
-            SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences("Event", Context.MODE_PRIVATE);
             fiestaIdAux = sharedPref.getString("fiestaId", null);
         }
 

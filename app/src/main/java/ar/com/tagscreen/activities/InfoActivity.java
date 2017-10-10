@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import ar.com.tagscreen.TagScreen;
@@ -33,7 +34,10 @@ import ar.com.tagscreen.utils.Constants;
 public class InfoActivity extends AppCompatActivity {
     ImageView photoView;
     Activity activity;
-
+    private final String ASISTIRE = "asistire";
+    private final String TAL_VEZ = "talVez";
+    private final String NO_ASISTIRE = "noAsistire";
+    private String fiestaId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,17 +47,28 @@ public class InfoActivity extends AppCompatActivity {
         setTitle("Info");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String fiestaIdAux = ((TagScreen)getApplication()).getFiestaId();
-
-        if(fiestaIdAux==null) {
-            SharedPreferences sharedPref = getSharedPreferences("TagScreen", Context.MODE_PRIVATE);
-            fiestaIdAux = sharedPref.getString("fiestaId", null);
-        }
-
-        final String fiestaIdFinal = fiestaIdAux.toLowerCase();
+        findViewById(R.id.asistire).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveAsistencia(ASISTIRE);
+            }
+        });
+        findViewById(R.id.tal_vez).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveAsistencia(TAL_VEZ);
+            }
+        });
+        findViewById(R.id.no_asistire).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveAsistencia(NO_ASISTIRE);
+            }
+        });
+        fiestaId = getIntent().getExtras().getString("fiestaId");
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/"+fiestaIdFinal + "/info");
+        final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/"+fiestaId + "/info");
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
@@ -98,6 +113,46 @@ public class InfoActivity extends AppCompatActivity {
 
         myRef.addListenerForSingleValueEvent(postListener);
 
+    }
+
+    private void saveAsistencia(String asistire) {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference eventosRef = database.getReference("fiestApp").child("fiestas/" + fiestaId);
+        Map<String, Object> eventoUpdates = new HashMap<>();
+        DatabaseReference usuariosRef = database.getReference("fiestApp").child("users/" + ((TagScreen)getApplication()).getCurrentUser().getUid());
+        Map<String, Object> usuarioUpdates = new HashMap<>();
+        switch (asistire){
+            case ASISTIRE:
+                eventoUpdates.put("/asistire/" + ((TagScreen)getApplication()).getCurrentUser().getUid(), true);
+                eventosRef.child("/talvez/" + ((TagScreen)getApplication()).getCurrentUser().getUid()).removeValue();
+                eventosRef.child("/noasistire/" + ((TagScreen)getApplication()).getCurrentUser().getUid()).removeValue();
+                eventosRef.updateChildren(eventoUpdates);
+                usuarioUpdates.put("/asistire/"+fiestaId, true);
+                usuariosRef.child("/talvez/"+fiestaId).removeValue();
+                usuariosRef.child("/noasistire/"+fiestaId).removeValue();
+                usuariosRef.updateChildren(usuarioUpdates);
+                break;
+            case TAL_VEZ:
+                eventoUpdates.put("/talvez/" + ((TagScreen)getApplication()).getCurrentUser().getUid(), true);
+                eventosRef.child("/asistire/" + ((TagScreen)getApplication()).getCurrentUser().getUid()).removeValue();
+                eventosRef.child("/noasistire/" + ((TagScreen)getApplication()).getCurrentUser().getUid()).removeValue();
+                eventosRef.updateChildren(eventoUpdates);
+                usuarioUpdates.put("/talvez/"+fiestaId, true);
+                usuariosRef.child("/asistire/"+fiestaId).removeValue();
+                usuariosRef.child("/noasistire/"+fiestaId).removeValue();
+                usuariosRef.updateChildren(usuarioUpdates);
+                break;
+            case NO_ASISTIRE:
+                eventoUpdates.put("/noasistire/" + ((TagScreen)getApplication()).getCurrentUser().getUid(), true);
+                eventosRef.child("/talvez/" + ((TagScreen)getApplication()).getCurrentUser().getUid()).removeValue();
+                eventosRef.child("/asistire/" + ((TagScreen)getApplication()).getCurrentUser().getUid()).removeValue();
+                eventosRef.updateChildren(eventoUpdates);
+                usuarioUpdates.put("/noasistire/"+fiestaId, true);
+                usuariosRef.child("/talvez/"+fiestaId).removeValue();
+                usuariosRef.child("/asistire/"+fiestaId).removeValue();
+                usuariosRef.updateChildren(usuarioUpdates);
+                break;
+        }
     }
 
     @Override
