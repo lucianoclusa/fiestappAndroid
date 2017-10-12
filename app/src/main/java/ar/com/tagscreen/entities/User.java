@@ -15,6 +15,7 @@ public class User {
     private String email;
     private String[] fiestas;
     private String Uid;
+    private String currentEvent;
 
     public User(){}
 
@@ -56,12 +57,19 @@ public class User {
         Uid = uid;
     }
 
-    public void saveNewUser() {
+    public void saveOrUpdate() {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference("fiestApp/users");
-        Map<String, User> users = new HashMap<String, User>();
+        Map<String, Object> users = new HashMap<>();
         users.put(this.getUid(), this);
-        ref.setValue(users);
+        ref.updateChildren(users);
     }
 
+    public String getCurrentEvent() {
+        return currentEvent;
+    }
+
+    public void setCurrentEvent(String currentEvent) {
+        this.currentEvent = currentEvent;
+    }
 }

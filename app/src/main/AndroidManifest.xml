@@ -8,7 +8,6 @@
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:name=".TagScreen"
@@ -26,8 +25,7 @@
             android:label="@string/app_name" />
         <activity
             android:name=".activities.MainLoginActivity"
-            android:label="@string/app_name"
-            android:noHistory="true">
+            android:label="@string/login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,11 +34,14 @@
         </activity>
         <activity
             android:name=".activities.FirebaseLoginActivity"
-            android:label="@string/app_name" />
+            android:label="@string/mail_login" />
         <activity
             android:name=".activities.RegisterActivity"
             android:label="@string/app_name" />
         <activity android:name=".activities.InfoActivity" />
+        <activity
+            android:name=".activities.RegisterEventActivity"
+            android:label="@string/title_activity_register_event"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -60,10 +61,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity
-            android:name=".activities.RegisterEventActivity"
-            android:label="@string/title_activity_register_event"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+
     </application>
 
 </manifest>

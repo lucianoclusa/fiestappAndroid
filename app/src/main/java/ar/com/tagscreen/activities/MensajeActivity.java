@@ -56,14 +56,7 @@ public class MensajeActivity extends AppCompatActivity {
         setTitle("Enviar comentario");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String fiestaIdAux = ((TagScreen) getApplication()).getFiestaId();
-
-        if (fiestaIdAux == null) {
-            SharedPreferences sharedPref = getSharedPreferences("Event", Context.MODE_PRIVATE);
-            fiestaIdAux = sharedPref.getString("fiestaId", null);
-        }
-
-        fiestaIdFinal = fiestaIdAux.toLowerCase();
+        fiestaIdFinal = ((TagScreen) getApplication()).getCurrentUser().getCurrentEvent().toLowerCase();
 
         Button sendFirma = (Button) findViewById(R.id.send_message_button);
         sendFirma.setOnClickListener(new View.OnClickListener() {

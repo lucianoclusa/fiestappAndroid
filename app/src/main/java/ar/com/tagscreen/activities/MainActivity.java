@@ -3,7 +3,6 @@ package ar.com.tagscreen.activities;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     public Uri videoUri;
     public ByteArrayOutputStream baos;
     public StorageReference storageRef;
-    public String fiestaIdFinal;
+    public String currentEvent;
     public String keyVideos;
     public DatabaseReference myRef;
     private Uri photoURI;
@@ -89,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton cameraButton;
     private ImageButton videoButton;
     private ImageButton mensajeButton;
+    private ImageButton infoButton;
     private FirebaseAnalytics mFirebaseAnalytics;
     InfoFiesta infoFiesta;
     String error;
@@ -110,7 +110,9 @@ public class MainActivity extends AppCompatActivity {
         cameraButton = (ImageButton) findViewById(R.id.cameraButton);
         videoButton = (ImageButton) findViewById(R.id.videoButton);
         mensajeButton = (ImageButton) findViewById(R.id.mensajeButton);
+        infoButton = (ImageButton) findViewById(R.id.infoButton);
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        infoButton = (ImageButton) findViewById(R.id.infoButton);
 
 
         try {
@@ -121,22 +123,14 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String fiestaIdAux = ((TagScreen) getApplication()).getFiestaId();
+        currentEvent = ((TagScreen) getApplication()).getCurrentUser().getCurrentEvent().toLowerCase();
 
-        if (fiestaIdAux == null) {
-            SharedPreferences sharedPref = getSharedPreferences("Event", Context.MODE_PRIVATE);
-            fiestaIdAux = sharedPref.getString("fiestaId", null);
-        }
-
-        fiestaIdFinal = fiestaIdAux.toLowerCase();
-
-        setTitle("#" + fiestaIdFinal);
+        setTitle("#" + currentEvent);
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("fiestApp").child("fiestas/" + fiestaIdFinal);
+        myRef = database.getReference("fiestApp").child("fiestas/" + currentEvent);
         this.getEventInfo();
 
-        View cameraButton = findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        View videoButton = findViewById(R.id.videoButton);
         videoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -185,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        View mensajeButton = findViewById(R.id.mensajeButton);
         mensajeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -195,6 +187,15 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(activity, InfoActivity.class);
+                intent.putExtra("fiestaId", currentEvent);
+                startActivity(intent);
             }
         });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -267,8 +268,8 @@ public class MainActivity extends AppCompatActivity {
                     case FOTO:
                         Toast.makeText(activity, R.string.foto_subiendo, Toast.LENGTH_LONG).show();
 
-                        final String keyImagenes = myRef.child(fiestaIdFinal).child("imagenes").push().getKey();
-                        fileRef = storageRef.child(fiestaIdFinal + "/imagenes/" + keyImagenes + ".jpg");
+                        final String keyImagenes = myRef.child(currentEvent).child("imagenes").push().getKey();
+                        fileRef = storageRef.child(currentEvent + "/imagenes/" + keyImagenes + ".jpg");
 
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
 
@@ -316,10 +317,10 @@ public class MainActivity extends AppCompatActivity {
                     case VIDEO:
                         Toast.makeText(activity, R.string.video_subiendo, Toast.LENGTH_LONG).show();
 
-                        final String keyVideos = myRef.child(fiestaIdFinal).child("videos").push().getKey();
+                        final String keyVideos = myRef.child(currentEvent).child("videos").push().getKey();
                         final Uri videoUri = intent.getData();
 
-                        StorageReference videoRef = storageRef.child(fiestaIdFinal + "/videos/" + videoUri.getLastPathSegment() + ".mp4");
+                        StorageReference videoRef = storageRef.child(currentEvent + "/videos/" + videoUri.getLastPathSegment() + ".mp4");
                         uploadTask = videoRef.putFile(videoUri);
                         // Register observers to listen for when the download is done or if it fails
                         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -341,16 +342,16 @@ public class MainActivity extends AppCompatActivity {
                                 if (ContextCompat.checkSelfPermission(activity,
                                         Manifest.permission.READ_EXTERNAL_STORAGE)
                                         != PackageManager.PERMISSION_GRANTED) {
-                                    requestPermission(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
+                                    requestPermission(downloadUrl, videoUri, baos, storageRef, currentEvent, keyVideos, myRef);
                                     activity.downloadUrl = downloadUrl;
                                     activity.videoUri = videoUri;
                                     activity.baos = baos;
                                     activity.storageRef = storageRef;
-                                    activity.fiestaIdFinal = fiestaIdFinal;
+                                    activity.currentEvent = currentEvent;
                                     activity.keyVideos = keyVideos;
                                     activity.myRef = myRef;
                                 } else {
-                                    uploadVideo(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
+                                    uploadVideo(downloadUrl, videoUri, baos, storageRef, currentEvent, keyVideos, myRef);
                                 }
                             }
                         });
@@ -446,11 +447,16 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
+
         return super.onOptionsItemSelected(item);
     }
 
+    public void changeEvent(MenuItem item){
+        Intent intent = new Intent(activity, RegisterEventActivity.class);
+        startActivity(intent);
+    }
     public void logOut(MenuItem item) {
-        ((TagScreen) getApplication()).setFiestaId(null);
+        ((TagScreen) getApplication()).setCurrentUser(null);
         mAuth.signOut();
         Intent intent = new Intent(activity, MainLoginActivity.class);
         startActivity(intent);
@@ -511,7 +517,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    uploadVideo(downloadUrl, videoUri, baos, storageRef, fiestaIdFinal, keyVideos, myRef);
+                    uploadVideo(downloadUrl, videoUri, baos, storageRef, currentEvent, keyVideos, myRef);
 
 
                 } else {
@@ -577,35 +583,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void addFiestaInfoMenu(Menu menu) {
-        MenuItem item = menu.add("Info");
-        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(activity, InfoActivity.class);
-                intent.putExtra("fiestaId", fiestaIdFinal);
-                startActivity(intent);
-                return true;
-            }
-        });
-    }
-
     private void getInfoFiesta(final Menu menu) {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/" + fiestaIdFinal + "/info");
+        final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/" + currentEvent + "/info");
         ValueEventListener postListener = new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 InfoFiesta info = dataSnapshot.getValue(InfoFiesta.class);
-                if (info!=null && (info.isTieneFoto() || info.getData()!=null)) {
-                    addFiestaInfoMenu(menu);
-                }
                 if(info!=null && info.isChangeTheme()){
                     changeTheme(info);
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Getting Post failed, log a message
@@ -613,9 +602,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         myRef.addListenerForSingleValueEvent(postListener);
-
-
-
     }
 
     private void changeTheme(InfoFiesta info) {
@@ -636,6 +622,7 @@ public class MainActivity extends AppCompatActivity {
                     cameraButton.setBackgroundColor(Color.parseColor(info.getButtonsColour()));
                     videoButton.setBackgroundColor(Color.parseColor(info.getButtonsColour()));
                     mensajeButton.setBackgroundColor(Color.parseColor(info.getButtonsColour()));
+                    infoButton.setBackgroundColor(Color.parseColor(info.getButtonsColour()));
                 }
             }
         }catch(Exception e){

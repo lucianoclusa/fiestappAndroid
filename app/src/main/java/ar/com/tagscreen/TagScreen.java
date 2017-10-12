@@ -9,7 +9,6 @@ import ar.com.tagscreen.entities.User;
  */
 public class TagScreen extends Application {
     private User currentUser;
-    private String fiestaId;
 
     public User getCurrentUser() {
         return currentUser;
@@ -18,14 +17,5 @@ public class TagScreen extends Application {
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
     }
-
-    public String getFiestaId() {
-        return fiestaId;
-    }
-
-    public void setFiestaId(String fiestaId) {
-        this.fiestaId = fiestaId;
-    }
-
 
 }

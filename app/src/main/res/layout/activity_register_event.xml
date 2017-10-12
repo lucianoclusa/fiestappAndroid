@@ -38,7 +38,7 @@
                     android:id="@+id/event"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/user"
+                    android:hint="@string/codigo_evento"
                     android:maxLines="1"
                     android:singleLine="true" />
 

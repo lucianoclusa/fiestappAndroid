@@ -1,9 +1,7 @@
 package ar.com.tagscreen.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,9 +24,10 @@ import com.squareup.picasso.Picasso;
 import java.util.HashMap;
 import java.util.Map;
 
-import ar.com.tagscreen.TagScreen;
 import ar.com.tagscreen.R;
+import ar.com.tagscreen.TagScreen;
 import ar.com.tagscreen.entities.InfoFiesta;
+import ar.com.tagscreen.entities.User;
 import ar.com.tagscreen.utils.Constants;
 
 public class InfoActivity extends AppCompatActivity {
@@ -44,7 +43,8 @@ public class InfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_info);
         photoView = (ImageView) findViewById(R.id.info_foto);
         activity =this;
-        setTitle("Info");
+        fiestaId = getIntent().getExtras().getString("fiestaId");
+        setTitle("#"+fiestaId);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         findViewById(R.id.asistire).setOnClickListener(new View.OnClickListener() {
@@ -65,7 +65,6 @@ public class InfoActivity extends AppCompatActivity {
                 saveAsistencia(NO_ASISTIRE);
             }
         });
-        fiestaId = getIntent().getExtras().getString("fiestaId");
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference myRef = database.getReference("fiestApp").child("fiestas/"+fiestaId + "/info");
@@ -116,10 +115,11 @@ public class InfoActivity extends AppCompatActivity {
     }
 
     private void saveAsistencia(String asistire) {
+        User currentUser = ((TagScreen)getApplication()).getCurrentUser();
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference eventosRef = database.getReference("fiestApp").child("fiestas/" + fiestaId);
         Map<String, Object> eventoUpdates = new HashMap<>();
-        DatabaseReference usuariosRef = database.getReference("fiestApp").child("users/" + ((TagScreen)getApplication()).getCurrentUser().getUid());
+        DatabaseReference usuariosRef = database.getReference("fiestApp").child("users/" + currentUser.getUid());
         Map<String, Object> usuarioUpdates = new HashMap<>();
         switch (asistire){
             case ASISTIRE:
@@ -153,6 +153,9 @@ public class InfoActivity extends AppCompatActivity {
                 usuariosRef.updateChildren(usuarioUpdates);
                 break;
         }
+        currentUser.setCurrentEvent(fiestaId);
+        currentUser.saveOrUpdate();
+        gotToMain();
     }
 
     @Override
@@ -163,5 +166,11 @@ public class InfoActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    private void gotToMain(){
+        Intent intent = new Intent(activity, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

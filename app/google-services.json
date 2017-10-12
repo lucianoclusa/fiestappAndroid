@@ -66,6 +66,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "660310986770-m8066j0lmo204u1rne8cbt9udtolsnn6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ar.com.tagscreen",
+            "certificate_hash": "a11f602b47d15f8c47d9d1f286b8643f24b328c8"
+          }
+        },
+        {
           "client_id": "660310986770-lck635klq8kqs8tpshtoquvrv6qotdjp.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -80,8 +88,20 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "660310986770-lck635klq8kqs8tpshtoquvrv6qotdjp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "660310986770-5aum508mpgaa6cl405jpr9sphd19ja9j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ar.com.coco"
+              }
+            }
+          ]
         },
         "ads_service": {
           "status": 2

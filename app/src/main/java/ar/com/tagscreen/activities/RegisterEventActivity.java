@@ -14,6 +14,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import ar.com.tagscreen.R;
+import ar.com.tagscreen.TagScreen;
+import ar.com.tagscreen.entities.User;
 
 public class RegisterEventActivity extends CommonActivity{
     private EditText mEventView;
@@ -24,6 +26,8 @@ public class RegisterEventActivity extends CommonActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activity = this;
+        super.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         setContentView(R.layout.activity_register_event);
         mEventView = (EditText) findViewById(R.id.event);
         findViewById(R.id.register_event_button).setOnClickListener(new View.OnClickListener() {
@@ -35,13 +39,13 @@ public class RegisterEventActivity extends CommonActivity{
                 if (TextUtils.isEmpty(mEventId)) {
                     mEventView.setError(getString(R.string.error_field_required));
                 }else{
-                    checkIfEventExists();
+                    registerEvent();
                 }
             }
         });
     }
 
-    private void checkIfEventExists() {
+    private void registerEvent() {
         showProgress(true);
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference("fiestApp/fiestas");
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -49,6 +53,9 @@ public class RegisterEventActivity extends CommonActivity{
             public void onDataChange(DataSnapshot dataSnapshot) {
                 showProgress(false);
                 if (dataSnapshot.hasChild(mEventId)) {
+                    User user = ((TagScreen)getApplication()).getCurrentUser();
+                    user.setCurrentEvent(mEventId);
+                    user.saveOrUpdate();
                     Intent intent = new Intent(activity, InfoActivity.class);
                     intent.putExtra("fiestaId", mEventId);
                     startActivity(intent);

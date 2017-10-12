@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".activities.MainActivity">
-
     <ImageView
         android:id="@+id/backgroundImage"
         android:layout_width="match_parent"
@@ -15,39 +14,61 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="-150dp"
         android:alpha=".60"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/cameraButton"
+                android:background="@drawable/rounded_corners"
+                android:layout_width="@dimen/main_buttons_size"
+                android:layout_height="@dimen/main_buttons_size"
+                android:padding="16dp"
+                android:layout_margin="@dimen/main_buttons_margin"
+                android:src="@drawable/camera"
+                android:elevation="8dp"/>
 
-    <ImageButton
-        android:id="@+id/cameraButton"
-        android:background="@drawable/rounded_corners"
-        android:layout_width="@dimen/main_buttons_size"
-        android:layout_height="@dimen/main_buttons_size"
-        android:padding="16dp"
-        android:layout_above="@+id/videoButton"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="@dimen/main_buttons_margin"
-        android:src="@drawable/camera"
-        android:elevation="8dp"/>
+            <ImageButton
+                android:id="@+id/videoButton"
+                android:background="@drawable/rounded_corners"
+                android:layout_width="@dimen/main_buttons_size"
+                android:layout_height="@dimen/main_buttons_size"
+                android:padding="16dp"
+                android:layout_margin="@dimen/main_buttons_margin"
+                android:src="@drawable/video"
+                android:elevation="8dp"/>
 
-    <ImageButton
-        android:id="@+id/videoButton"
-        android:background="@drawable/rounded_corners"
-        android:layout_width="@dimen/main_buttons_size"
-        android:layout_height="@dimen/main_buttons_size"
-        android:layout_centerInParent="true"
-        android:padding="16dp"
-        android:src="@drawable/video"
-        android:elevation="8dp"/>
+        </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/mensajeButton"
-        android:background="@drawable/rounded_corners"
-        android:layout_width="@dimen/main_buttons_size"
-        android:layout_height="@dimen/main_buttons_size"
-        android:layout_below="@+id/videoButton"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="@dimen/main_buttons_margin"
-        android:src="@drawable/signature"
-        android:elevation="8dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/mensajeButton"
+            android:background="@drawable/rounded_corners"
+            android:layout_width="@dimen/main_buttons_size"
+            android:layout_height="@dimen/main_buttons_size"
+            android:layout_margin="@dimen/main_buttons_margin"
+            android:src="@drawable/signature"
+            android:elevation="8dp"/>
+
+        <ImageButton
+            android:id="@+id/infoButton"
+            android:background="@drawable/rounded_corners"
+            android:layout_width="@dimen/main_buttons_size"
+            android:layout_height="@dimen/main_buttons_size"
+            android:layout_margin="@dimen/main_buttons_margin"
+            android:src="@drawable/info"
+            android:elevation="8dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/versionNumber"
